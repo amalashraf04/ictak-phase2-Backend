@@ -129,6 +129,7 @@ router.get('/stafflist', async(req,res)=>{
 // read single staff detail
 router.get('/staff/:id',async(req,res)=>{
     try {
+
         let id = req.params.id;
         let staff = await staffInfo.findById(id);
         res.send(staff);
@@ -165,19 +166,24 @@ router.post('/staff',verifyToken, async(req,res)=>{
 
 // update staff detail
 router.put('/staff/:id', async(req, res) => {
+
+
     try {
       let id = req.params.id;
         console.log(id)
+        bcrypt.hash(req.body.password, 10, async function(err, hash) {
         let staff ={
             name: req.body.name,
             email: req.body.email,
-            // password: req.body.password,
+             password: hash,
             role : req.body.role
         }
         let updateStaff = { $set: staff };
         let updateInfo = await staffInfo.findByIdAndUpdate({'_id': id }, updateStaff);
         res.send(updateInfo)
-    } catch (error) {
+        }) 
+      } 
+     catch (error) {
         console.log(error);
     }
 })
@@ -208,7 +214,16 @@ router.get('/',async(req,res)=>{
     }
 
 })
-
+router.get('/:id',async(req,res)=>{
+  try {
+      let id = req.params.id;
+      let learners = await LearnerData.findById(id);
+      res.send(learners);
+  }
+  catch(error) {
+      console.log(error);
+  }
+})
 router.post('/',verifyToken,async(req,res)=>{
 
     try {
@@ -231,12 +246,14 @@ router.put('/:id',async(req,res)=>{
   try {
     let id = req.params.id;
     let learner=req.body;
-    const updatedLearner = await LearnerData.findByIdAndUpdate({_id:id},{$set:learner})
-    res.json({message :'Data updated succesfully'}).status(200)
+    let update= { $set: learner };
+    const updatedLearner = await LearnerData.findByIdAndUpdate({_id:id},update)
+    res.send(updatedLearner)
   } catch (error) {
     console.log(error)
     res.json({message:error}).status(400)
   }
+
 
 })
 
